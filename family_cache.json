@@ -1,0 +1,827 @@
+{
+ "Acanthophis": {
+  "family": "Elapidae",
+  "match": "EXACT",
+  "gbif_genus": "Acanthophis"
+ },
+ "Aclys": {
+  "family": "Pygopodidae",
+  "match": "EXACT",
+  "gbif_genus": "Aclys"
+ },
+ "Acris": {
+  "family": "Hylidae",
+  "match": "EXACT",
+  "gbif_genus": "Acris"
+ },
+ "Acrochordus": {
+  "family": "Acrochordidae",
+  "match": "EXACT",
+  "gbif_genus": "Acrochordus"
+ },
+ "Actinemys": {
+  "family": "Emydidae",
+  "match": "EXACT",
+  "gbif_genus": "Actinemys"
+ },
+ "Agkistrodon": {
+  "family": "Viperidae",
+  "match": "EXACT",
+  "gbif_genus": "Agkistrodon"
+ },
+ "Ambyiroma": {
+  "family": "",
+  "match": "HIGHERRANK",
+  "gbif_genus": ""
+ },
+ "Ambystoma": {
+  "family": "Ambystomatidae",
+  "match": "EXACT",
+  "gbif_genus": "Ambystoma"
+ },
+ "Amphium": {
+  "family": "Amphiumidae",
+  "match": "FUZZY",
+  "gbif_genus": "Amphiuma"
+ },
+ "Amphiuma": {
+  "family": "Amphiumidae",
+  "match": "EXACT",
+  "gbif_genus": "Amphiuma"
+ },
+ "Anaxyrus": {
+  "family": "Bufonidae",
+  "match": "EXACT",
+  "gbif_genus": "Anaxyrus"
+ },
+ "Andrias": {
+  "family": "Cryptobranchidae",
+  "match": "EXACT",
+  "gbif_genus": "Andrias"
+ },
+ "Aneides": {
+  "family": "Plethodontidae",
+  "match": "EXACT",
+  "gbif_genus": "Aneides"
+ },
+ "Anniella": {
+  "family": "Anguidae",
+  "match": "EXACT",
+  "gbif_genus": "Anniella"
+ },
+ "Apocryptodon": {
+  "family": "Gobiidae",
+  "match": "EXACT",
+  "gbif_genus": "Apocryptodon"
+ },
+ "Arizona": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Arizona"
+ },
+ "Ascaphus": {
+  "family": "Ascaphidae",
+  "match": "EXACT",
+  "gbif_genus": "Ascaphus"
+ },
+ "Aspidoscelis": {
+  "family": "Teiidae",
+  "match": "EXACT",
+  "gbif_genus": "Aspidoscelis"
+ },
+ "Atropoides": {
+  "family": "Viperidae",
+  "match": "EXACT",
+  "gbif_genus": "Atropoides"
+ },
+ "Batrachoseps": {
+  "family": "Plethodontidae",
+  "match": "EXACT",
+  "gbif_genus": "Batrachoseps"
+ },
+ "Batracoseps": {
+  "family": "Plethodontidae",
+  "match": "FUZZY",
+  "gbif_genus": "Batrachoseps"
+ },
+ "Bitis": {
+  "family": "Viperidae",
+  "match": "EXACT",
+  "gbif_genus": "Bitis"
+ },
+ "Boiga": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Boiga"
+ },
+ "Bolitoglossa": {
+  "family": "Plethodontidae",
+  "match": "EXACT",
+  "gbif_genus": "Bolitoglossa"
+ },
+ "Bombina": {
+  "family": "Bombinatoridae",
+  "match": "EXACT",
+  "gbif_genus": "Bombina"
+ },
+ "Bothrups": {
+  "family": "Viperidae",
+  "match": "FUZZY",
+  "gbif_genus": "Bothrops"
+ },
+ "Bufo": {
+  "family": "Bufonidae",
+  "match": "EXACT",
+  "gbif_genus": "Bufo"
+ },
+ "Bufor": {
+  "family": "Bufonidae",
+  "match": "FUZZY",
+  "gbif_genus": "Bufo"
+ },
+ "Calisaurus": {
+  "family": "Phrynosomatidae",
+  "match": "FUZZY",
+  "gbif_genus": "Callisaurus"
+ },
+ "Carallus": {
+  "family": "",
+  "match": "HIGHERRANK",
+  "gbif_genus": ""
+ },
+ "Carphophis": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Carphophis"
+ },
+ "Cemophora": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Cemophora"
+ },
+ "Ceratophrys": {
+  "family": "Ceratophryidae",
+  "match": "EXACT",
+  "gbif_genus": "Ceratophrys"
+ },
+ "Chilomeniscus": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Chilomeniscus"
+ },
+ "Chionactis": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Chionactis"
+ },
+ "Chrysemys": {
+  "family": "Emydidae",
+  "match": "EXACT",
+  "gbif_genus": "Chrysemys"
+ },
+ "Clelia": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Clelia"
+ },
+ "Clemmys": {
+  "family": "Emydidae",
+  "match": "EXACT",
+  "gbif_genus": "Clemmys"
+ },
+ "Cnemidophorus": {
+  "family": "Teiidae",
+  "match": "EXACT",
+  "gbif_genus": "Cnemidophorus"
+ },
+ "Cnemidpohorus": {
+  "family": "Teiidae",
+  "match": "FUZZY",
+  "gbif_genus": "Cnemidophorus"
+ },
+ "Coleonyx": {
+  "family": "Eublepharidae",
+  "match": "EXACT",
+  "gbif_genus": "Coleonyx"
+ },
+ "Coluber": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Coluber"
+ },
+ "Contia": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Contia"
+ },
+ "Crolaus": {
+  "family": "",
+  "match": "HIGHERRANK",
+  "gbif_genus": ""
+ },
+ "Crotalus": {
+  "family": "Viperidae",
+  "match": "EXACT",
+  "gbif_genus": "Crotalus"
+ },
+ "Cryptobranchus": {
+  "family": "Cryptobranchidae",
+  "match": "EXACT",
+  "gbif_genus": "Cryptobranchus"
+ },
+ "Data": {
+  "family": "Noctuidae",
+  "match": "EXACT",
+  "gbif_genus": "Data"
+ },
+ "Delma": {
+  "family": "Pygopodidae",
+  "match": "EXACT",
+  "gbif_genus": "Delma"
+ },
+ "Delmia": {
+  "family": "Pygopodidae",
+  "match": "FUZZY",
+  "gbif_genus": "Delma"
+ },
+ "Demansia": {
+  "family": "Elapidae",
+  "match": "EXACT",
+  "gbif_genus": "Demansia"
+ },
+ "Dendrobates": {
+  "family": "Dendrobatidae",
+  "match": "EXACT",
+  "gbif_genus": "Dendrobates"
+ },
+ "Desmognathus": {
+  "family": "Plethodontidae",
+  "match": "EXACT",
+  "gbif_genus": "Desmognathus"
+ },
+ "Diadophis": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Diadophis"
+ },
+ "Dicamptodon": {
+  "family": "Ambystomatidae",
+  "match": "EXACT",
+  "gbif_genus": "Dicamptodon"
+ },
+ "Diplolaemus": {
+  "family": "Leiosauridae",
+  "match": "EXACT",
+  "gbif_genus": "Diplolaemus"
+ },
+ "Dipsosaurus": {
+  "family": "Iguanidae",
+  "match": "EXACT",
+  "gbif_genus": "Dipsosaurus"
+ },
+ "Drymarchon": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Drymarchon"
+ },
+ "Drymobius": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Drymobius"
+ },
+ "Dyscophus": {
+  "family": "Microhylidae",
+  "match": "EXACT",
+  "gbif_genus": "Dyscophus"
+ },
+ "Echiopsis": {
+  "family": "",
+  "match": "HIGHERRANK",
+  "gbif_genus": ""
+ },
+ "Elaphe": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Elaphe"
+ },
+ "Eleutherodactylos": {
+  "family": "Eleutherodactylidae",
+  "match": "FUZZY",
+  "gbif_genus": "Eleutherodactylus"
+ },
+ "Eleutherodactylus": {
+  "family": "Eleutherodactylidae",
+  "match": "EXACT",
+  "gbif_genus": "Eleutherodactylus"
+ },
+ "Elgaria": {
+  "family": "Anguidae",
+  "match": "EXACT",
+  "gbif_genus": "Elgaria"
+ },
+ "Ensatina": {
+  "family": "Plethodontidae",
+  "match": "EXACT",
+  "gbif_genus": "Ensatina"
+ },
+ "Eridiphas": {
+  "family": "",
+  "match": "HIGHERRANK",
+  "gbif_genus": ""
+ },
+ "Eumeces": {
+  "family": "Scincidae",
+  "match": "EXACT",
+  "gbif_genus": "Eumeces"
+ },
+ "Euproctus": {
+  "family": "Salamandridae",
+  "match": "EXACT",
+  "gbif_genus": "Euproctus"
+ },
+ "Eurycea": {
+  "family": "Plethodontidae",
+  "match": "EXACT",
+  "gbif_genus": "Eurycea"
+ },
+ "Farancia": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Farancia"
+ },
+ "Gambelia": {
+  "family": "Crotaphytidae",
+  "match": "EXACT",
+  "gbif_genus": "Gambelia"
+ },
+ "Gerrhonotus": {
+  "family": "Anguidae",
+  "match": "EXACT",
+  "gbif_genus": "Gerrhonotus"
+ },
+ "Gopherus": {
+  "family": "Testudinidae",
+  "match": "EXACT",
+  "gbif_genus": "Gopherus"
+ },
+ "Graptemys": {
+  "family": "Emydidae",
+  "match": "EXACT",
+  "gbif_genus": "Graptemys"
+ },
+ "Gyalopion": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Gyalopion"
+ },
+ "Gyrinophilus": {
+  "family": "Plethodontidae",
+  "match": "EXACT",
+  "gbif_genus": "Gyrinophilus"
+ },
+ "Haideotriton": {
+  "family": "Plethodontidae",
+  "match": "EXACT",
+  "gbif_genus": "Eurycea"
+ },
+ "Hemidactylium": {
+  "family": "Plethodontidae",
+  "match": "EXACT",
+  "gbif_genus": "Hemidactylium"
+ },
+ "Heterodon": {
+  "family": "",
+  "match": "HIGHERRANK",
+  "gbif_genus": ""
+ },
+ "Hydrelaps": {
+  "family": "Elapidae",
+  "match": "EXACT",
+  "gbif_genus": "Hydrelaps"
+ },
+ "Hydromantes": {
+  "family": "Plethodontidae",
+  "match": "EXACT",
+  "gbif_genus": "Hydromantes"
+ },
+ "Hydrophis": {
+  "family": "Elapidae",
+  "match": "EXACT",
+  "gbif_genus": "Hydrophis"
+ },
+ "Hyla": {
+  "family": "Hylidae",
+  "match": "EXACT",
+  "gbif_genus": "Hyla"
+ },
+ "Hynobius": {
+  "family": "Hynobiidae",
+  "match": "EXACT",
+  "gbif_genus": "Hynobius"
+ },
+ "Hypsiglena": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Hypsiglena"
+ },
+ "Imantodes": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Imantodes"
+ },
+ "Indotyphlops": {
+  "family": "Typhlopidae",
+  "match": "EXACT",
+  "gbif_genus": "Indotyphlops"
+ },
+ "Istigobius": {
+  "family": "Gobiidae",
+  "match": "EXACT",
+  "gbif_genus": "Istigobius"
+ },
+ "Lampropeltis": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Lampropeltis"
+ },
+ "Leptodeira": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Leptodeira"
+ },
+ "Leptophis": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Leptophis"
+ },
+ "Leptotyphlops": {
+  "family": "Leptotyphlopidae",
+  "match": "EXACT",
+  "gbif_genus": "Leptotyphlops"
+ },
+ "Lialis": {
+  "family": "Pygopodidae",
+  "match": "EXACT",
+  "gbif_genus": "Lialis"
+ },
+ "Liasis": {
+  "family": "Pythonidae",
+  "match": "EXACT",
+  "gbif_genus": "Liasis"
+ },
+ "Lichanura": {
+  "family": "Boidae",
+  "match": "EXACT",
+  "gbif_genus": "Lichanura"
+ },
+ "Lithobates": {
+  "family": "Ranidae",
+  "match": "EXACT",
+  "gbif_genus": "Lithobates"
+ },
+ "Lygophis": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Lygophis"
+ },
+ "Malaclemys": {
+  "family": "Emydidae",
+  "match": "EXACT",
+  "gbif_genus": "Malaclemys"
+ },
+ "Masticohpis": {
+  "family": "Colubridae",
+  "match": "FUZZY",
+  "gbif_genus": "Masticophis"
+ },
+ "Masticophis": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Masticophis"
+ },
+ "Micruroides": {
+  "family": "Elapidae",
+  "match": "EXACT",
+  "gbif_genus": "Micruroides"
+ },
+ "Micrurus": {
+  "family": "",
+  "match": "HIGHERRANK",
+  "gbif_genus": ""
+ },
+ "Naja": {
+  "family": "Elapidae",
+  "match": "EXACT",
+  "gbif_genus": "Naja"
+ },
+ "Nerodia": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Nerodia"
+ },
+ "Ninia": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Ninia"
+ },
+ "None": {
+  "family": "",
+  "match": "HIGHERRANK",
+  "gbif_genus": ""
+ },
+ "Notechis": {
+  "family": "Elapidae",
+  "match": "EXACT",
+  "gbif_genus": "Notechis"
+ },
+ "Notophtalmus": {
+  "family": "Salamandridae",
+  "match": "EXACT",
+  "gbif_genus": "Notophthalmus"
+ },
+ "Notophthalmus": {
+  "family": "Salamandridae",
+  "match": "EXACT",
+  "gbif_genus": "Notophthalmus"
+ },
+ "Oedipina": {
+  "family": "Plethodontidae",
+  "match": "EXACT",
+  "gbif_genus": "Oedipina"
+ },
+ "Opheodrys": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Opheodrys"
+ },
+ "Ophiophagus": {
+  "family": "Elapidae",
+  "match": "EXACT",
+  "gbif_genus": "Ophiophagus"
+ },
+ "Ophryacus": {
+  "family": "Viperidae",
+  "match": "EXACT",
+  "gbif_genus": "Ophryacus"
+ },
+ "Pelamis": {
+  "family": "Scombridae",
+  "match": "EXACT",
+  "gbif_genus": "Sarda"
+ },
+ "Periophthalmus": {
+  "family": "Gobiidae",
+  "match": "EXACT",
+  "gbif_genus": "Periophthalmus"
+ },
+ "Phrynosoma": {
+  "family": "Phrynosomatidae",
+  "match": "EXACT",
+  "gbif_genus": "Phrynosoma"
+ },
+ "Phyllorhynchus": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Phyllorhynchus"
+ },
+ "Pituophis": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Pituophis"
+ },
+ "Plethodon": {
+  "family": "Plethodontidae",
+  "match": "EXACT",
+  "gbif_genus": "Plethodon"
+ },
+ "Pseudacris": {
+  "family": "Hylidae",
+  "match": "EXACT",
+  "gbif_genus": "Pseudacris"
+ },
+ "Pseudemys": {
+  "family": "Emydidae",
+  "match": "EXACT",
+  "gbif_genus": "Pseudemys"
+ },
+ "Pseudeshis": {
+  "family": "Elapidae",
+  "match": "FUZZY",
+  "gbif_genus": "Pseudechis"
+ },
+ "Pseudoeurycea": {
+  "family": "Plethodontidae",
+  "match": "EXACT",
+  "gbif_genus": "Pseudoeurycea"
+ },
+ "Pseudonaja": {
+  "family": "Elapidae",
+  "match": "EXACT",
+  "gbif_genus": "Pseudonaja"
+ },
+ "Pseudotriton": {
+  "family": "Plethodontidae",
+  "match": "EXACT",
+  "gbif_genus": "Pseudotriton"
+ },
+ "Pygopus": {
+  "family": "Pygopodidae",
+  "match": "EXACT",
+  "gbif_genus": "Pygopus"
+ },
+ "Python": {
+  "family": "Pythonidae",
+  "match": "EXACT",
+  "gbif_genus": "Python"
+ },
+ "Rana": {
+  "family": "Ranidae",
+  "match": "EXACT",
+  "gbif_genus": "Rana"
+ },
+ "Regina": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Regina"
+ },
+ "Rhadinaza": {
+  "family": "Colubridae",
+  "match": "FUZZY",
+  "gbif_genus": "Rhadinaea"
+ },
+ "Rhinocheilus": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Rhinocheilus"
+ },
+ "Rhinoplocephalus": {
+  "family": "Elapidae",
+  "match": "EXACT",
+  "gbif_genus": "Rhinoplocephalus"
+ },
+ "Rhyacosiredon": {
+  "family": "Ambystomatidae",
+  "match": "EXACT",
+  "gbif_genus": "Ambystoma"
+ },
+ "Salvadora": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Salvadora"
+ },
+ "Sauromalus": {
+  "family": "Iguanidae",
+  "match": "EXACT",
+  "gbif_genus": "Sauromalus"
+ },
+ "Scaphiopus": {
+  "family": "Scaphiopodidae",
+  "match": "EXACT",
+  "gbif_genus": "Scaphiopus"
+ },
+ "Scartelaos": {
+  "family": "Gobiidae",
+  "match": "EXACT",
+  "gbif_genus": "Scartelaos"
+ },
+ "Sceloporus": {
+  "family": "Phrynosomatidae",
+  "match": "EXACT",
+  "gbif_genus": "Sceloporus"
+ },
+ "Senticolis": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Senticolis"
+ },
+ "Simoselaps": {
+  "family": "Elapidae",
+  "match": "EXACT",
+  "gbif_genus": "Simoselaps"
+ },
+ "Siren": {
+  "family": "Sirenidae",
+  "match": "EXACT",
+  "gbif_genus": "Siren"
+ },
+ "Sistrurus": {
+  "family": "Viperidae",
+  "match": "EXACT",
+  "gbif_genus": "Sistrurus"
+ },
+ "Smilisca": {
+  "family": "Hylidae",
+  "match": "EXACT",
+  "gbif_genus": "Smilisca"
+ },
+ "Sonora": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Sonora"
+ },
+ "Spea": {
+  "family": "Scaphiopodidae",
+  "match": "EXACT",
+  "gbif_genus": "Spea"
+ },
+ "Storeria": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Storeria"
+ },
+ "Suta": {
+  "family": "Elapidae",
+  "match": "EXACT",
+  "gbif_genus": "Suta"
+ },
+ "Syrrhophus": {
+  "family": "Eleutherodactylidae",
+  "match": "EXACT",
+  "gbif_genus": "Eleutherodactylus"
+ },
+ "Tantilla": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Tantilla"
+ },
+ "Taricha": {
+  "family": "Salamandridae",
+  "match": "EXACT",
+  "gbif_genus": "Taricha"
+ },
+ "Thamnophis": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Thamnophis"
+ },
+ "Toluca": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Conopsis"
+ },
+ "Trachemys": {
+  "family": "Emydidae",
+  "match": "EXACT",
+  "gbif_genus": "Trachemys"
+ },
+ "Trimeresurus": {
+  "family": "Viperidae",
+  "match": "EXACT",
+  "gbif_genus": "Trimeresurus"
+ },
+ "Trimorphodon": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Trimorphodon"
+ },
+ "Trionyx": {
+  "family": "Trionychidae",
+  "match": "EXACT",
+  "gbif_genus": "Trionyx"
+ },
+ "Typhlonectes": {
+  "family": "Typhlonectidae",
+  "match": "EXACT",
+  "gbif_genus": "Typhlonectes"
+ },
+ "Typhlotriton": {
+  "family": "Plethodontidae",
+  "match": "EXACT",
+  "gbif_genus": "Eurycea"
+ },
+ "Unlisted": {
+  "family": "",
+  "match": "HIGHERRANK",
+  "gbif_genus": ""
+ },
+ "Urosaurus": {
+  "family": "Phrynosomatidae",
+  "match": "EXACT",
+  "gbif_genus": "Urosaurus"
+ },
+ "Uta": {
+  "family": "Phrynosomatidae",
+  "match": "EXACT",
+  "gbif_genus": "Uta"
+ },
+ "Varanus": {
+  "family": "Varanidae",
+  "match": "EXACT",
+  "gbif_genus": "Varanus"
+ },
+ "Vipera": {
+  "family": "Viperidae",
+  "match": "EXACT",
+  "gbif_genus": "Vipera"
+ },
+ "Virginia": {
+  "family": "Colubridae",
+  "match": "EXACT",
+  "gbif_genus": "Virginia"
+ },
+ "Xenopus": {
+  "family": "Pipidae",
+  "match": "EXACT",
+  "gbif_genus": "Xenopus"
+ }
+}

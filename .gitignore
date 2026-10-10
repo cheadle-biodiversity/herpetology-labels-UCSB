@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Generated labels and review files (examples/ is kept)
+/*.pdf
+*_review.csv
+
+# Working spreadsheets stay local; only the sample workbook is tracked
+*.xlsx
+!examples/sample_jars.xlsx
+~$*
+
+# OS clutter
+.DS_Store
+Thumbs.db
