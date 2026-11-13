@@ -33,8 +33,8 @@ size for that jar in `jar_sizes.csv`.
   cached in `family_cache.json`, and **localities and collectors** from the
   Symbiota portal export (`--portal`).
 - **Writes a review file** (`*_review.csv`) listing every label that needed a
-  judgement call: count-and-range labels, labels too small for H1033-size type,
-  jars not in the jar table, unreadable catalog numbers, missing data.
+  judgement call, each line marked **CHECK** (fix or confirm before printing)
+  or **info** (routine). See [Review file](#review-file).
 
 ## Installation
 
@@ -67,6 +67,22 @@ python make_jar_labels.py Herp_Label_Data.xlsx --reconciliation Reconciliation.x
 Each run writes `<output>.pdf` and `<output>_review.csv`. The PDF defaults to
 `jar_labels.pdf`. If the sheet holds jars of more than one size, the PDFs are
 named by label size: `jar_labels_5x12cm.pdf`, `jar_labels_8x13cm.pdf`, ….
+
+### Review file
+
+Every line in `<output>_review.csv` has a **level**. CHECK lines come first,
+and the run ends by naming the jars that have them:
+
+```
+*** 2 label(s) need checking before printing (CHECK in the review file): H1327, H1341
+```
+
+| Level | Means | Examples |
+|---|---|---|
+| **CHECK** | The label may be wrong: fix the spreadsheet (or confirm) and re-run before printing those jars | a catalog number that is a different taxon in the portal ("others: 15060 Ambystoma californiense"); a number not in the portal; duplicate portal records; `Catalog_Verified` empty; a number found in the jar but not in `Catalog #s`; unreadable catalog numbers; missing name, state or Jar #; no jar size or a jar not in `jar_sizes.csv`; a label that doesn't fit its jar; skipped rows |
+| **info** | The label is right; this records what the script did | name updated from the portal; numbers not found in the jar (left off); count-and-range or catalog-numbers-only labels; GBIF spelling matches |
+
+The list of CHECK messages is `CHECK_PATTERNS` in the script.
 
 ## Spreadsheet format
 
@@ -105,6 +121,10 @@ Settings that printed the Trial 1 batch correctly (13 Nov 2026), with
   margin.
 - **Adobe print dialog:** Page Sizing → **Size → Actual size** (not Fit, Shrink
   or Poster), portrait.
+- **One page per batch** (`--one-page`): the whole set prints as one strip,
+  with no breaks between labels. The driver's stock height must equal that
+  page's length, which changes with each batch; the run prints it in inches
+  ("set the driver stock to 4.10 in wide x 67.79 in high").
 - **Page lengths:** each run lists every page's length, and no page is longer
   than `--strip-length`. If you change the driver's stock height, pass the same
   length, e.g. `--strip-length 100` for 100 cm stock.
@@ -295,6 +315,7 @@ python make_jar_labels.py Herp_Label_Data.xlsx \
 | `--portal DWCA` | — | Symbiota export; per-specimen Locality and Collector. |
 | `--strip` | — | Long pages down the roll, short labels paired side by side. |
 | `--strip-length CM` | 55.9 | Longest page in `--strip` mode; never exceeded (a batch splits into more pages, never mid-label). Set it to the longest page your printer and driver accept, e.g. `250` for one page per batch. The run lists each page's length. |
+| `--one-page` | — | The whole batch on one continuous page (no page breaks except at the start and end). The run prints the page length, e.g. "set the driver stock to 4.10 in wide x 67.79 in high"; set the driver to that before printing. Up to 250 cm. |
 | `--gap CM` | 0.3 | Space between labels down the roll in `--strip` mode. |
 | `--no-pairing` | — | With `--strip`, one label per row. |
 | `--flip` | — | With `--strip`, turn the labels the other way. |

@@ -713,6 +713,7 @@ _MID_DIST = re.compile(r"\s(?:~|approx\.?|ca\.?)?\s*[\d.,/ \-–]*\d\s*(?:air\s+
 _CONNECT = re.compile(r"\s+(?:at|on|near|along|in|from|between|by|via|off)\s+", re.I)
 _TRAIL = re.compile(r"\s+(?:and|of|the|at|to|on|in|near|from|with|by|&)$", re.I)
 MAX_CLAUSE = 32   # longest single locality part, characters
+MAX_BETWEEN = 48  # a part may run this long to keep a "between X and Y" phrase whole
 
 
 # Words shortened on labels (applied before MAX_CLAUSE, so the space goes to
@@ -737,7 +738,20 @@ def _clause(c: str) -> str:
     if m and m.start() >= 6:
         c = c[:m.start()].strip(" ;:,")
     if len(c) > MAX_CLAUSE:
-        cut = next((m.start() for m in _CONNECT.finditer(c) if 12 <= m.start() <= MAX_CLAUSE), None)
+        # "between X and Y" is one phrase: never cut inside it ("ridge between
+        # Santa Barbara and Pine Cyns." must not become "ridge between Santa Barbara")
+        span = None
+        if (bt := re.search(r"\bbetween\b", c, re.I)):
+            if (an := re.search(r"\band\b", c[bt.end():], re.I)):
+                a_end = bt.end() + an.end()
+                nxt = _CONNECT.search(c, a_end + 1)
+                span = (bt.start(), nxt.start() if nxt else len(c))
+        cut = next((m.start() for m in _CONNECT.finditer(c) if 12 <= m.start() <= MAX_CLAUSE
+                    and not (span and span[0] < m.start() < span[1])), None)
+        if cut is None and span and span[1] <= MAX_BETWEEN:
+            cut = span[1]                      # keep the whole between-phrase
+        elif cut is None and span and span[0] >= 6:
+            cut = span[0]                      # too long: stop before "between"
         if cut:
             c = c[:cut]
         else:
@@ -748,6 +762,8 @@ def _clause(c: str) -> str:
                 out = f"{out} {w}".strip()
             c = out
     c = c.strip(" ;:,")
+    if c.count("(") != c.count(")"):          # a bracket split off by a comma
+        c = c.replace("(", "").replace(")", "").strip(" ;:,")
     while _TRAIL.search(c):
         c = _TRAIL.sub("", c)
     return c
@@ -1506,6 +1522,7 @@ def resolve_jar_size(value: str) -> tuple[JarSpec | None, str]:
 # Paper_use_length_cm long.  The script looks a jar up here by its
 # circumference and height.
 DEFAULT_JAR_TABLE = Path(__file__).with_name("jar_sizes.csv")
+ONE_PAGE_MAX_CM = 250.0        # --one-page limit: the M-Class Mark II prints labels up to ~99 in
 MATCH_TOL_CM = 0.15            # a jar within this of a table row uses that row
 
 
@@ -1899,6 +1916,31 @@ def write_strips(c: canvas.Canvas, slots: list[Slot], roll_w: float, gap: float,
 
 
 # ==========================================================================
+# Review levels
+# ==========================================================================
+# Every review line is CHECK (fix or confirm before printing: the label may be
+# wrong) or info (routine: the label is right, this just records what happened).
+CHECK_PATTERNS = [
+    r"^specimens have different names in the portal",   # another taxon's number in the jar
+    r"^not in portal",                                   # no record: misread or uncatalogued
+    r"portal records; used the first",                   # duplicate catalog numbers
+    r"^not verified yet",                                # Catalog_Verified empty
+    r"^in jar but not in Catalog #s",                    # found in the jar, not on the old list
+    r"^reversed range|^range '.*' spans|^unparsed catalog entry",
+    r"^no scientific name|^no catalog numbers|^no usable state|^no Jar #",
+    r"^no jar size|not in jar_sizes\.csv|smaller than every jar|not recognised",
+    r"more than the .* cm roll",
+    r"^doesn't fit the label|^label is .* cm long",
+    r"^skipped",
+]
+_CHECK_RE = re.compile("|".join(CHECK_PATTERNS))
+
+
+def issue_level(issue: str) -> str:
+    return "CHECK" if _CHECK_RE.search(issue) else "info"
+
+
+# ==========================================================================
 # CLI
 # ==========================================================================
 def main(argv=None):
@@ -1974,6 +2016,10 @@ def main(argv=None):
     p.add_argument("--no-pairing", action="store_true", help="with --strip, one label per row")
     p.add_argument("--strip-length", type=float, default=55.9,
                    help="longest page in --strip mode, cm (default 55.9 = 22 in)")
+    p.add_argument("--one-page", action="store_true",
+                   help="the whole batch on ONE continuous page (implies --strip): no page breaks "
+                        "except at the start and end. Set the driver's stock height to the page "
+                        f"length the run prints (up to {ONE_PAGE_MAX_CM:g} cm)")
     p.add_argument("--gap", type=float, default=0.3,
                    help="space between labels along the roll in --strip mode, cm (default 0.3)")
     p.add_argument("--flip", action="store_true",
@@ -1999,6 +2045,9 @@ def main(argv=None):
         print(f"Jar table: {load_label_table(a.jar_table, a.paper_width)} jars from {a.jar_table}")
     else:
         print(f"Jar table {a.jar_table} not found; labels = 60% of jar height x 85% of circumference")
+    if a.one_page:
+        a.strip = True
+        a.strip_length = ONE_PAGE_MAX_CM
     if a.list_jar_sizes:
         print_label_table(a.paper_width)
         return
@@ -2115,7 +2164,13 @@ def main(argv=None):
             npairs = sum(1 for sl in slots if len(sl.items) == 2)
             roll = (f"{used / cm / 100:.2f} m of roll on {len(lengths)} strip(s)"
                     + (f", {npairs} pairs side by side (saves {1 - used / single:.0%})" if npairs else "")
-                    + "\n" + "\n".join(f"      page {k}: {ln / cm:.1f} cm" for k, ln in enumerate(lengths, 1))
+                    + "\n" + "\n".join(f"      page {k}: {ln / cm:.1f} cm = {ln / 72:.2f} in"
+                                       for k, ln in enumerate(lengths, 1))
+                    + (f"\n      >>> set the driver stock to 4.10 in wide x {max(lengths) / 72:.2f} in high "
+                       "before printing" if a.one_page else "")
+                    + (f"\n      !!! more than {ONE_PAGE_MAX_CM:g} cm: split into {len(lengths)} pages; "
+                       "print in smaller batches for one page each"
+                       if a.one_page and len(lengths) > 1 else "")
                     + f"\n      (no page longer than --strip-length {a.strip_length:g} cm)")
         else:
             for page, (jar, L) in enumerate(placed, 1):
@@ -2130,14 +2185,15 @@ def main(argv=None):
     review = a.output.with_name(a.output.stem + "_review.csv")
     with review.open("w", newline="") as fh:
         w = csv.writer(fh)
-        w.writerow(["batch", "position", "sheet", "row", "jar", "scientific_name", "n_specimens",
-                    "label", "issue"])
-        for jar in jars:
-            for issue in jar.problems:
-                w.writerow([jar.batch, jar.position, jar.sheet, jar.row, jar.jar_id, jar.sciname,
-                            jar.n_specimens, jar.fit_note, issue])
-        for s in skipped:
-            w.writerow(["", "", s["sheet"], s["row"], s["jar"], "", 0, "", s["issue"]])
+        w.writerow(["level", "batch", "position", "sheet", "row", "jar", "scientific_name",
+                    "n_specimens", "label", "issue"])
+        lines = [[issue_level(issue), jar.batch, jar.position, jar.sheet, jar.row, jar.jar_id,
+                  jar.sciname, jar.n_specimens, jar.fit_note, issue]
+                 for jar in jars for issue in jar.problems]
+        lines += [["CHECK", "", "", s["sheet"], s["row"], s["jar"], "", 0, "", s["issue"]]
+                  for s in skipped]
+        lines.sort(key=lambda r: r[0] != "CHECK")      # CHECK first, otherwise in print order
+        w.writerows(lines)
 
     if portal is not None:
         spec_csv = a.output.with_name(a.output.stem + "_specimens.csv")
@@ -2157,8 +2213,16 @@ def main(argv=None):
         print(f"Specimen localities/collectors -> {spec_csv}")
     print(f"{len(jars)} labels in {len(batches)} batch(es), one PDF per label size:")
     print("\n".join(notes))
-    print(f"{sum(1 for j in jars if j.problems)} labels flagged, "
-          f"{len(skipped)} rows skipped -> {review}")
+    to_check = [j.jar_id or f"row {j.row}" for j in jars
+                if any(issue_level(i) == "CHECK" for i in j.problems)]
+    n_info = sum(1 for j in jars if j.problems) - len(to_check)
+    if to_check:
+        print(f"*** {len(to_check)} label(s) need checking before printing (CHECK in the "
+              f"review file): {', '.join(to_check[:20])}" + (" ..." if len(to_check) > 20 else ""))
+    else:
+        print("No labels need checking (no CHECK lines).")
+    print(f"{n_info} more label(s) with routine notes (info), {len(skipped)} row(s) skipped "
+          f"-> {review}")
 
 
 if __name__ == "__main__":
