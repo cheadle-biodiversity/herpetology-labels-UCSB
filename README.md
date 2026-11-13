@@ -4,30 +4,37 @@ Printer-ready jar labels for the fluid-preserved herpetology collection at the
 UC Santa Barbara Cheadle Center for Biodiversity and Ecological Restoration (CCBER).
 
 `make_jar_labels.py` reads the jar-inventory spreadsheet (one row per jar) and
-writes a PDF with one label per page. It is built for continuous thermal roll
-stock on a Datamax-O'Neil M-Class Mark II, printing left to right along the roll.
+writes printer-ready PDFs, one per label size. It is built for continuous
+thermal roll stock (10 cm wide) on a Datamax-O'Neil M-Class Mark II, printing
+left to right along the roll.
+
+Labels are printed in **batches of one jar size**: give each jar's
+circumference and height in the spreadsheet, and the script looks up the label
+size for that jar in `jar_sizes.csv`.
 
 ![Sample label](examples/label_preview.png)
 
 ## What it does
 
-- **Lays out the label** with the scientific name, family and jar number on the
-  first line and the geography on the second, then a table of catalog numbers,
-  localities and collectors with the two-line CCBER footer underneath.
+- **Sizes each label to its jar** from `jar_sizes.csv` (see [Jar sizes](#jar-sizes)),
+  and writes one PDF per label size, so each batch prints as one job.
+- **One label format for every jar**, between the two trial labels that read
+  best: Jar H1033 at the small end and Jar H742 (130% of H1033) at the large
+  end. Each label gets the largest type in that range that fits it.
 - **Turns catalog numbers into rows.** Consecutive numbers print as a range
-  (`40748 - 40782`) and gaps print as separate rows.
-- **Handles jars with many specimens.** When the rows don't fit one column, the
-  table continues in further columns to the right, so the label gets longer but
-  never taller than the roll.
-- **Sizes labels to a jar** when you ask it to (see [Jar sizes](#jar-sizes)).
-  The type shrinks until the label fits.
-- **Fills in families** by looking each genus up in the
-  [GBIF backbone](https://www.gbif.org/developer/species). Results are cached in
-  `family_cache.json`, so later runs work offline.
-- **Writes a review file** (`*_review.csv`) listing every row that needed a
-  judgement call. That includes unreadable or reversed catalog ranges, missing
-  state or Jar #, genus spellings matched loosely in GBIF, and labels that don't
-  fit their jar.
+  (`40748 - 40782`), and the rows continue in further columns when one column
+  is full.
+- **QR code only when it's needed.** A label whose catalog numbers don't fit
+  prints the count and range ("14 specimens: 7756 – 30595 / Full list: scan QR
+  code") and a QR code holding the full list. Every other label has no QR code.
+- **Saves roll** with `--strip`: labels end to end down the roll, two short
+  labels side by side (two 5 cm labels share the 10 cm roll).
+- **Fills in families** from the [GBIF backbone](https://www.gbif.org/developer/species),
+  cached in `family_cache.json`, and **localities and collectors** from the
+  Symbiota portal export (`--portal`).
+- **Writes a review file** (`*_review.csv`) listing every label that needed a
+  judgement call: count-and-range labels, labels too small for H1033-size type,
+  jars not in the jar table, unreadable catalog numbers, missing data.
 
 ## Installation
 
@@ -44,21 +51,22 @@ pip install -r requirements.txt
 ## Quick start
 
 ```bash
-# Try it on the sample workbook
-python make_jar_labels.py examples/sample_jars.xlsx -o sample.pdf
+# Try it on the sample batch (eight jars, all C 13 x H 8.5 cm)
+python make_jar_labels.py examples/sample_batch.xlsx --strip -o batch.pdf
 
-# Every jar in your inventory
-python make_jar_labels.py Herp_Label_Data.xlsx
+# A batch from your inventory: rows have Circumference (cm) and Height (cm)
+python make_jar_labels.py Batch_13x8.5.xlsx --portal SymbOutput_DwC-A.zip --strip
 
-# A few jars for a test print
-python make_jar_labels.py Herp_Label_Data.xlsx --jar H1874 H1875 -o test.pdf
+# Label every jar in a sheet as one jar size
+python make_jar_labels.py Herp_Label_Data.xlsx --jar H1874 H1875 --jar-size 13x8.5
 
-# Size every label for a 250 mL jar
-python make_jar_labels.py Herp_Label_Data.xlsx --jar-size 250ml
+# Only jars with no conflicts against the portal
+python make_jar_labels.py Herp_Label_Data.xlsx --reconciliation Reconciliation.xlsx --exact-names
 ```
 
 Each run writes `<output>.pdf` and `<output>_review.csv`. The PDF defaults to
-`jar_labels.pdf`.
+`jar_labels.pdf`. If the sheet holds jars of more than one size, the PDFs are
+named by label size: `jar_labels_5x12cm.pdf`, `jar_labels_8x13cm.pdf`, ….
 
 ## Spreadsheet format
 
@@ -68,11 +76,14 @@ The script uses every sheet whose header row contains **Catalog #s** and
 | Column | Used for | Notes |
 |---|---|---|
 | `Jar #` | "Jar#: H1175" on the label | |
+| `Catalog_Verified` | catalog rows | The catalog numbers found in the jar on inspection. When filled in, the label uses these; numbers in `Catalog #s` that weren't found are left off and listed in the review file. When empty, the label uses `Catalog #s` and is flagged "not verified yet". |
 | `Catalog #s` | catalog rows | `41719-41729`, `41961-67`, and lists separated by commas or semicolons all work. If the cell is empty, `Side Catalog` and then `Top Catalog` are tried. |
-| `Scientific Name` | first line, italic | Capitalisation is normalised (`Bufo Microscaphus` becomes *Bufo microscaphus*). |
+| `Scientific Name` | first line, italic | Used only without `--portal`; capitalisation is normalised (`Bufo Microscaphus` becomes *Bufo microscaphus*). With `--portal` the portal's current name is printed instead (see below). |
 | `State etc.` | second line | Common typos and abbreviations are fixed (`CA`, `CALFORNIA`). US states get the prefix "U.S.A.". |
 | `County/Locality` | second line and Locality column | A county (`Santa Barbara Co.`) is also added to the second line. |
-| `Jar Size` | label size | Optional. See [Jar sizes](#jar-sizes). |
+| `Jar_cir`, `Jar_height` | label size | The jar's outside circumference and height in cm, looked up in `jar_sizes.csv`. Any header starting with "cir"/"jar cir" and "height"/"jar height"/"ht" works (`Circumference (cm)`, `Jar Height`, …). See [Jar sizes](#jar-sizes). |
+| `Label height (cm)`, `Label length (cm)` | label size | Optional: give the label size directly instead. |
+| `Jar Size` | label size | Optional, older form: `13x8.5` (circumference × height, cm) or a class letter. |
 | `Family` | family in parentheses | Optional. When absent, the family comes from GBIF. |
 | `Collector` | Collector column | Optional. When absent, the Collector column is left off the label. |
 | `Preservative` | printed bottom-right with `--preservative` | Optional. |
@@ -82,62 +93,190 @@ The script uses every sheet whose header row contains **Catalog #s** and
 
 ## Printing setup
 
-- **Media:** 10 cm wide continuous roll. Every page is 10 cm tall (`--paper-width`)
-  and as long as the label.
-- **Orientation:** the PDF is landscape, with text running along the roll. If
-  your printer driver is set to portrait, add `--rotate`.
-- **Driver settings:** print at actual size (no "fit to page") with continuous
-  media. The M-Class Mark II prints at 203 dpi, and the 0.75–1.5 pt rules and
-  6 pt or larger type print cleanly at that resolution.
-- **Trim line:** a label shorter than the roll width sits against the top edge,
-  with a dashed trim line along its bottom edge. Use `--no-cut-line` to turn it off.
+Settings that printed the Trial 1 batch correctly (13 Nov 2026), with
+`--strip`:
+
+- **Printer:** cutter off; cut the strip by hand along the dashed lines.
+  Media type: continuous, direct thermal.
+- **Driver stock:** 4.10 in wide × **22.00 in** high (55.9 cm), continuous.
+  This must match `--strip-length` (default 55.9 cm). The driver prints every
+  page as one stock-length "label": with the old 4.10 × 6.00 in stock, long pages
+  were chopped every 6 in, and text near each break was lost in the printer's
+  margin.
+- **Adobe print dialog:** Page Sizing → **Size → Actual size** (not Fit, Shrink
+  or Poster), portrait.
+- **Page lengths:** each run lists every page's length, and no page is longer
+  than `--strip-length`. If you change the driver's stock height, pass the same
+  length, e.g. `--strip-length 100` for 100 cm stock.
+- **Test page:** before a big batch, check the print preview, then print one
+  short page.
+- **Resolution:** the M-Class Mark II prints at 203 dpi; the 0.75–1.5 pt rules
+  and 9 pt or larger type print cleanly.
+- **One label per page** (without `--strip`): each page is 10 cm tall and as
+  long as the label; add `--rotate` if the driver is set to portrait.
 - **Fluid labels:** for labels that go into alcohol, SPNHC recommends
   polyester media with an alcohol-resistant ribbon. See
   [SPNHC herpetology curation](https://spnhc.org/herpetology-collection-curation/#Labels_and_systems_for_printing).
 
 ## Jar sizes
 
-![250 mL jar label](examples/label_preview_250ml.png)
+`jar_sizes.csv` lists the measured jars and the label each one gets:
 
-Give a jar size and the label is sized to that jar instead of to its content:
+| Column | Meaning |
+|---|---|
+| `Circumference (cm)`, `Height (cm)` | the jar |
+| `Paper_use_Height` | label height as a share of the 10 cm roll: `50%` = 5 cm, `full` = 10 cm |
+| `Paper_use_length_cm` | label length along the roll, i.e. around the jar |
+| `Orientation` | `Landscape` (text runs along the roll) |
+| `Example H#` | a jar of that size, for reference |
 
-- **Height:** 60% of the jar's height, capped at the roll width.
-- **Length:** `--wrap` × the jar's circumference (default 0.75, three-quarters
-  of the way around).
-- **Fitting:** type shrinks in steps down to `--min-scale` (default 60%) until
-  the label fits. A label that still doesn't fit is printed longer and listed in
-  the review file, with a warning if it would wrap past the jar's full
-  circumference.
+For example, a C 13 × H 8.5 cm jar gets a 5 × 12 cm label and a C 23 × H 9 cm
+jar an 8.5 × 18 cm label. `python make_jar_labels.py --list-jar-sizes` prints
+the table. Edit the CSV to add jars or change a label; `--jar-table` points to
+another copy.
 
-| Size | Thermo catalog # | Diameter × height | Label (height × length) |
+**Looking a jar up:** a jar within 0.15 cm of a row in both circumference and
+height uses that row. Otherwise the script uses the biggest label in the table
+for a jar no bigger than this one, so the label still fits, and flags it in the
+review file.
+
+**Giving the size** (first match wins):
+
+1. `--label-size 5x12`: the label size directly, height × length in cm, for every jar.
+2. `--jar-size 13x8.5`: every jar labelled as that jar (circumference × height, cm).
+3. The sheet's `Label height (cm)` and `Label length (cm)` columns.
+4. The sheet's `Circumference (cm)` and `Height (cm)` columns.
+5. The sheet's `Jar Size` column (`13x8.5`, a class letter A–N, or a Thermo size).
+
+A jar with no size is sized to its content and flagged.
+
+**Length is trimmed to the content**, never longer than the table's length, so
+no roll is spent on blank space.
+
+### Type and format
+
+Every label uses the format of the trial labels H1033 and H742: Jar# centred
+over the name, *Scientific name* (Family), the geography line, a rule, the
+catalog numbers, a rule and the one-line footer "UCSB Vertebrate Zoology –
+HERPETOLOGY – CCBER" (wrapped at a dash on narrow labels).
+
+| | Jar# | Name | Geography, rows, footer |
 |---|---|---|---|
-| `125ml` (4 oz) | 121-0125 | 51 × 102 mm | 6.1 × 12.0 cm |
-| `250ml` (8 oz) | 121-0250 | 62 × 127 mm | 7.6 × 14.6 cm |
-| `500ml` (16 oz) | 121-0500 | 76 × 150 mm *(estimated)* | 9.0 × 17.9 cm |
-| `950ml` (32 oz) | 121-1000 | 95 × 170 mm | 10.0 × 22.4 cm |
-| `2000ml` (64 oz) | 221-2000 | 124 × 214 mm | 10.0 × 29.2 cm |
-| `4000ml` (1 gal) | 121-4000 | 133 × 253 mm | 10.0 × 31.3 cm |
+| Smallest (H1033) | 11 pt | 13 pt | 10.5 pt |
+| Largest (H742) | 14.3 pt | 16.9 pt | 13.7 pt |
 
-The dimensions are for Thermo Scientific wide-mouth, tall-profile glass jars
-([product page](https://www.thermofisher.com/order/catalog/product/121-1000)).
-The 500 mL dimensions aren't published there and are an estimate, so measure a
-jar and correct them.
+Each label gets the largest type in that range that fits. When a label can't
+fit everything at H1033 size, it falls back, in order, to: catalog numbers only
+(locality and collector left off); the count and range with a QR code; the same
+without the geography line and footer. Only labels too small even for that
+(the 6.5 cm vials) go below H1033 size, down to 9 pt. All are flagged in the
+review file.
 
-Ways to give a size, either as `--jar-size` or in the sheet's `Jar Size` column:
+Without `--portal`, the sheet's single County/Locality goes in the geography
+line ("U.S.A., California, Antelope Valley") instead of being repeated on every
+row.
 
-- **Size key:** `250ml`
-- **Alias:** `8oz`, `quart`, `gallon`
-- **Thermo catalog number:** `121-0250`. The 221- and 321- versions work too.
-- **Size word:** `xsmall`, `small`, `medium`, `large`, `xlarge`. These map to
-  125 mL, 250 mL, 500 mL, 950 mL and 2 L. **The mapping is a guess; check it
-  against your shelves.**
-- **Any jar by dimensions:** `70x150` (diameter × height in mm).
+### QR code
 
-Misspellings such as `meduium` are matched to the closest size and flagged in
-the review file. Rows with no size are sized to their content.
+Only labels that can't list their catalog numbers get a QR code. Scanning it
+shows plain text, one catalog number per line:
 
-`python make_jar_labels.py --list-jar-sizes` prints the table. To add jars or
-change the mappings, edit `JAR_SIZES` and `JAR_ALIASES` in the script.
+```
+Jar H1820 UCSB Herpetology
+Updated 2026-11-06
+14 specimens:
+UCSB-HERP 7756
+UCSB-HERP 15121
+...
+```
+
+Jars with more than 15 specimens list ranges (`UCSB-HERP 10201-10212`) to keep
+the code small. "Updated" is the print date (`--qr-date`); the prefix is
+`--qr-prefix`. Modules are 3 printer dots (0.375 mm); 2-dot codes and a
+per-specimen CSV table were tried and did not scan reliably. With `--no-qr` the
+fallback label reads "Full list: see catalog".
+
+## Saving roll: long strips
+
+```bash
+python make_jar_labels.py Batch_13x8.5.xlsx --portal SymbOutput_DwC-A.zip --strip
+```
+
+![A batch of 5 x 12 cm labels, paired across the roll](examples/batch_strip_preview.png)
+
+With `--strip` the PDF is a set of long pages, like a continuous label sheet.
+Each page is as wide as the roll and up to `--strip-length` long (default
+55.9 cm, 22 in). The labels run end to end down the roll, turned so their
+length follows the roll.
+
+- **Pairing:** two labels whose heights add up to no more than the roll width
+  print side by side on the same stretch of roll: in a batch of 5 cm labels
+  (the 50% rows of `jar_sizes.csv`), every two labels share the roll. The
+  script picks the pairs that save the most roll (a maximum-weight matching).
+- **Cutting:** dashed lines mark every cut: between labels down the roll,
+  between the two labels of a pair, and the trim beside a single label that's
+  narrower than the roll.
+- **Finding a label:** the review and specimen CSVs give each jar's strip and
+  position ("strip 2, label 4 (left)").
+- **Options:** `--no-pairing` (one label per row), `--gap` (space between
+  labels, default 0.3 cm), `--flip` (turn labels the other way if they come out
+  upside down).
+
+The run prints how much roll it used and what one label per row would have
+needed.
+
+## Locality and collector from the portal
+
+The label spreadsheet has no per-specimen locality or collector, so they come
+from the Symbiota export:
+
+```bash
+python make_jar_labels.py Herp_Label_Data.xlsx --portal SymbOutput_2026-10-16_160706_DwC-A.zip
+```
+
+- **Locality, one county in the jar:** the main feature of each specimen's
+  portal locality, e.g. "Chiricahua Mtns." from "Chiricahua Mtns., Cave Creek
+  Cyn., Cave Creek Cyn. Rd., 2.0 mi. E Southwestern Research Station".
+  Distances are dropped ("1.8 mi. E of Portal" → "E of Portal"). When the
+  label fits it at full type size, the next part is added too
+  ("Chiricahua Mtns., Cave Creek Cyn."). "Junction" prints as "jct." and
+  "quadrant"/"quadrat" as "quad." (`LOCALITY_ABBREV` in the script lists the
+  abbreviations; add more there).
+- **Scientific name and family:** from the portal's genus and species fields,
+  genus and species only, with no authorship ("Klauber 1902") and no
+  subspecies. A species hybrid keeps both parents ("Thamnophis atratus x
+  hammondii"). The family comes from the portal too. When this differs from the
+  sheet's Scientific Name, the review file says so ("name from portal:
+  Pituophis catenifer (sheet: Pituophis melanoleucus)"). When the specimens in
+  a jar have different portal names, the label uses the name most of them
+  have, and the review file lists the others.
+- **Locality, several counties in the jar:** each row shows its county
+  ("Cochise Co.", "Pima Co.").
+- **Collector:** first initial and surname ("Samuel S. Sweet" → "S. Sweet");
+  two collectors → "W. Jennings & D. Miles"; three or more → "et al.".
+- **Header line:** country, state and county come from the portal when every
+  specimen shares them.
+- Consecutive catalog numbers fold into a range only when their locality and
+  collector are the same.
+
+Each run also writes `<output>_specimens.csv`, with every shortened locality
+and collector beside the full portal text, so the shortening can be checked.
+Catalog numbers missing from the portal are listed in the review file.
+
+### Printing only conflict-free jars
+
+`herp_reconcile.py` checks the label spreadsheet against the Symbiota portal.
+Pass its workbook to print only jars that passed:
+
+```bash
+python make_jar_labels.py Herp_Label_Data.xlsx \
+    --reconciliation Reconciliation.xlsx --exact-names
+```
+
+- `--reconciliation` keeps jars whose status is "All matched" (change with
+  `--status`).
+- `--exact-names` also drops jars whose name differs from the portal's
+  (synonyms, older names, spelling).
 
 ## Options
 
@@ -147,13 +286,30 @@ change the mappings, edit `JAR_SIZES` and `JAR_ALIASES` in the script.
 | `--sheet NAME ...` | all matching sheets | Only these sheets. |
 | `--jar H1874 ...` | all | Only these Jar #s. |
 | `--limit N` | — | Stop after N labels. |
-| `--jar-size SIZE` | from sheet | Size every label for one jar. |
+| `--jar-size CxH` | from sheet | Label every jar as this jar (circumference × height, cm), e.g. `13x8.5`. |
+| `--label-size HxL` | from sheet | Label size directly (height × length, cm), e.g. `5x12`. |
 | `--list-jar-sizes` | — | Print the jar table and exit. |
-| `--wrap F` | 0.75 | How far around the jar the label wraps. |
-| `--min-scale F` | 0.6 | Smallest type scale used to fit a jar. |
+| `--jar-table CSV` | `jar_sizes.csv` | Jar → label table to use. |
+| `--min-pt PT` | 10.5 | Smallest specimen-row type (H1033 size); everything else scales with it. |
+| `--compact-footer LINE ...` | one-line CCBER footer | Footer for compact labels. |
+| `--portal DWCA` | — | Symbiota export; per-specimen Locality and Collector. |
+| `--strip` | — | Long pages down the roll, short labels paired side by side. |
+| `--strip-length CM` | 55.9 | Longest page in `--strip` mode; never exceeded (a batch splits into more pages, never mid-label). Set it to the longest page your printer and driver accept, e.g. `250` for one page per batch. The run lists each page's length. |
+| `--gap CM` | 0.3 | Space between labels down the roll in `--strip` mode. |
+| `--no-pairing` | — | With `--strip`, one label per row. |
+| `--flip` | — | With `--strip`, turn the labels the other way. |
+| `--no-qr` | — | No QR code, even on count-and-range labels. |
+| `--qr-dots 3\|4` | 3 | QR module size in printer dots. |
+| `--qr-date YYYY-MM-DD` | today | "Updated" date in the QR code. |
+| `--qr-prefix TEXT` | UCSB-HERP | Prefix for each catalog number in the QR code. |
+| `--qr-collection NAME` | UCSB Herpetology | Name on the QR code's first line. |
+| `--show-size` | — | Print the jar and label size small in the upper-right corner (test prints). |
+| `--reconciliation XLSX` | — | Print only jars that passed `herp_reconcile.py`. |
+| `--status S ...` | All matched | Jar statuses to print with `--reconciliation`. |
+| `--exact-names` | — | Also skip jars whose name differs from the portal. |
 | `--paper-width CM` | 10 | Roll width, which is the page height. |
 | `--length CM` | fit content | Fixed label length. |
-| `--max-length CM` | 30 | Flag labels sized to content that are longer than this. |
+| `--max-length CM` | 30 | Longest label for a jar with no size (flagged if longer). |
 | `--scale F` | 1.0 | Scale all type. |
 | `--valign center\|top` | center | Vertical position of the content within the label. |
 | `--min-run N` | 2 | How many consecutive numbers it takes to make a range. |
@@ -200,11 +356,13 @@ hints kingdom Animalia and phylum Chordata.
 
 ```
 make_jar_labels.py        the label generator
+jar_sizes.csv             measured jars and the label size for each
 family_cache.json         cached genus → family lookups from GBIF
 requirements.txt
 examples/
-  sample_jars.xlsx        two-jar sample in the inventory format
-  sample_labels.pdf       its labels, sized to content
-  sample_labels_250ml.pdf the same jars with --jar-size 250ml
-  label_preview*.png      images used in this README
+  sample_batch.xlsx       eight jars of one size (C 13 x H 8.5 cm)
+  sample_batch_strip.pdf  their labels with --strip, paired across the roll
+  sample_jars.xlsx        two jars with Family and Collector columns
+  sample_labels.pdf       their labels
+  *_preview.png           images used in this README
 ```

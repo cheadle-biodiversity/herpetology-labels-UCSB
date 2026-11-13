@@ -6,13 +6,16 @@ venv/
 
 # Generated labels and review files (examples/ is kept)
 /*.pdf
+batches/
 *_review.csv
+*_specimens.csv
 
 # Working spreadsheets stay local; only the sample workbook is tracked
 *.xlsx
-!examples/sample_jars.xlsx
+!examples/*.xlsx
 ~$*
 
 # OS clutter
 .DS_Store
 Thumbs.db
+*.patch
