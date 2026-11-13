@@ -19,3 +19,8 @@ batches/
 .DS_Store
 Thumbs.db
 *.patch
+
+# Symbiota portal exports (full specimen data) stay local
+*.zip
+SymbOutput_*/
+occurrences.csv
