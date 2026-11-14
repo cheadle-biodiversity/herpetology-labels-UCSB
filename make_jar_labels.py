@@ -58,6 +58,10 @@ Locality and collector from the portal
   ("Chiricahua Mtns."), plus the next part ("Chiricahua Mtns., Cave Creek
   Cyn.") when the label fits it at full type size.  Jar from several counties
   -> each row shows its county.  Collector: "S. Sweet", "A & B", "A et al.".
+  Portal records that still carry an older name are printed under the name
+  in name_fixes.csv (portal_name,label_name,stateProvince,note), e.g.
+  Pituophis melanoleucus in California -> Pituophis catenifer; --rename
+  'Old=New' adds one (any state) for a run.
   <output>_specimens.csv lists every shortened locality/collector next to the
   full portal text for checking.  Without --portal the sheet's
   County/Locality is repeated on every row, as before.
@@ -871,10 +875,53 @@ def portal_name(r: dict) -> str:
     return name
 
 
+# Portal name -> name printed on the label, for portal records that still carry
+# an older name (e.g. California gopher snakes entered as Pituophis
+# melanoleucus).  Filled from name_fixes.csv next to this script and --rename.
+# Keys: (portal name, state) in lower case; state "" = any state.
+RENAMES: dict[tuple[str, str], str] = {}
+
+
+def load_renames(path: Path | None, pairs: list[str] | None) -> int:
+    """name_fixes.csv (portal_name,label_name[,stateProvince][,note]) plus
+    --rename 'Old=New' (any state)."""
+    if path and path.exists():
+        with path.open(newline="", encoding="utf-8-sig") as fh:
+            for row in csv.DictReader(fh):
+                old = clean(row.get("portal_name", ""))
+                new = clean(row.get("label_name", ""))
+                state = clean(row.get("stateProvince", ""))
+                if old and new:
+                    RENAMES[(old.lower(), state.lower())] = new
+    for pair in pairs or []:
+        if "=" not in pair:
+            raise SystemExit(f"--rename needs 'Portal name=Label name', got '{pair}'")
+        old, new = (clean(x) for x in pair.split("=", 1))
+        RENAMES[(old.lower(), "")] = new
+    return len(RENAMES)
+
+
+def renamed_to(name: str, state: str) -> str | None:
+    k = name.lower()
+    return RENAMES.get((k, clean(state).lower())) or RENAMES.get((k, ""))
+
+
+def label_name(r: dict) -> str:
+    """portal_name(), with name_fixes.csv / --rename applied."""
+    name = portal_name(r)
+    return renamed_to(name, r.get("stateProvince", "")) or name
+
+
+def describe_renames() -> str:
+    return "; ".join(f"{k[0][:1].upper()}{k[0][1:]}{' (' + k[1].title() + ')' if k[1] else ''} -> {v}"
+                     for k, v in RENAMES.items())
+
+
 def attach_portal(jar: Jar, portal: dict[int, list[dict]]):
     """Fill jar.specimens from the portal and decide county vs feature localities."""
     specs = []
     missing = []
+    renamed: dict[str, list[str]] = {}
     for t in jar.catalogs:
         s = Specimen(t, int(t) if NUM.match(t) else None)
         recs = portal.get(s.num, []) if s.num is not None else []
@@ -889,12 +936,19 @@ def attach_portal(jar: Jar, portal: dict[int, list[dict]]):
             s.collector_raw = clean(r.get("recordedBy", ""))
             s.collector = short_collector(s.collector_raw)
             s.sciname = portal_name(r)
+            new = renamed_to(s.sciname, s.state)
+            if new:
+                renamed.setdefault((s.sciname, new), []).append(t)
+                s.sciname = new
             s.family = clean(r.get("family", ""))
             if len(recs) > 1:
                 jar.problems.append(f"{t}: {len(recs)} portal records; used the first")
         elif s.num is not None:
             missing.append(t)
         specs.append(s)
+    for (old, new), nums in renamed.items():
+        jar.problems.append(f"portal name {old} printed as {new} (name_fixes.csv): "
+                            + ", ".join(nums))
     if missing:
         jar.problems.append(f"not in portal (no locality/collector): {', '.join(missing[:10])}"
                             + (" ..." if len(missing) > 10 else ""))
@@ -1988,6 +2042,13 @@ def main(argv=None):
     p.add_argument("--exact-names", action="store_true",
                    help="with --reconciliation, also skip jars whose name differs from the "
                         "portal (synonyms, older names, spelling)")
+    p.add_argument("--rename", nargs="+", metavar="'OLD=NEW'",
+                   help="print portal name OLD as NEW, e.g. 'Pituophis melanoleucus=Pituophis "
+                        "catenifer' (adds to name_fixes.csv)")
+    p.add_argument("--name-fixes", type=Path,
+                   default=Path(__file__).resolve().parent / "name_fixes.csv",
+                   help="CSV portal_name,label_name[,stateProvince][,note] of portal names to print differently "
+                        "(default name_fixes.csv next to this script)")
     p.add_argument("--no-cut-line", action="store_true",
                    help="omit the dashed trim line under labels narrower than the roll")
     p.add_argument("--max-length", type=float, default=30.0,
@@ -2088,6 +2149,8 @@ def main(argv=None):
     if a.portal:
         portal = load_portal(a.portal)
         print(f"Portal: {sum(map(len, portal.values())):,} records from {a.portal}")
+        if load_renames(a.name_fixes, a.rename):
+            print("Name fixes: " + describe_renames())
         for jar in jars:
             attach_portal(jar, portal)
 

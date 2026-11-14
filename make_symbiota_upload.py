@@ -25,7 +25,8 @@ Left out (CHECK), so a wrong jar never reaches the portal:
   * jar not verified (Catalog_Verified empty) -- unless --include-unverified;
   * the same catalog number listed in two different jars;
   * a number not in the portal, or with more than one portal record;
-  * a number that is a different taxon from the rest of its jar (misread tag);
+  * a number that is a different taxon from the rest of its jar (misread tag;
+    older names listed in name_fixes.csv count as the current name);
   * Dynamic Properties already names a DIFFERENT jar.
 
 Download the portal data just before running this, so the check sees what is
@@ -92,10 +93,16 @@ def main(argv=None):
                         f"(default '{DEFAULT_FORMAT}')")
     p.add_argument("--include-unverified", action="store_true",
                    help="also include jars with no Catalog_Verified (uses Catalog #s; flagged)")
+    p.add_argument("--name-fixes", type=Path,
+                   default=Path(M.__file__).resolve().parent / "name_fixes.csv",
+                   help="portal names treated as another name when comparing a jar's taxa "
+                        "(default name_fixes.csv, as for make_jar_labels.py)")
     a = p.parse_args(argv)
 
     portal = M.load_portal(a.portal)
     print(f"Portal: {sum(len(v) for v in portal.values()):,} records from {a.portal}")
+    if M.load_renames(a.name_fixes, None):
+        print("Name fixes: " + M.describe_renames())
     jar_filter = {j.upper() for j in a.jar} if a.jar else None
 
     review: list[list] = []               # level, sheet, row, jar, catalog, issue
@@ -135,8 +142,8 @@ def main(argv=None):
     names = defaultdict(Counter)
     for _, _, j, c in candidates:
         recs = portal.get(int(c), [])
-        if len(recs) == 1 and M.portal_name(recs[0]):
-            names[j][M.portal_name(recs[0])] += 1
+        if len(recs) == 1 and M.label_name(recs[0]):
+            names[j][M.label_name(recs[0])] += 1
     jar_majority = {j: cn.most_common(1)[0][0] for j, cn in names.items() if cn}
 
     rows, merges, seen = [], [], set()
@@ -155,7 +162,7 @@ def main(argv=None):
                            "left out (an upload would update all of them)"])
             continue
         rec = recs[0]
-        name = M.portal_name(rec)
+        name = M.label_name(rec)
         if j in jar_majority and name and name != jar_majority[j]:
             review.append(["CHECK", *where, f"portal says {name}, the rest of the jar is "
                            f"{jar_majority[j]}; left out (misread tag?)"])

@@ -273,6 +273,20 @@ python make_jar_labels.py Herp_Label_Data.xlsx --portal SymbOutput_2026-10-16_16
   Pituophis catenifer (sheet: Pituophis melanoleucus)"). When the specimens in
   a jar have different portal names, the label uses the name most of them
   have, and the review file lists the others.
+- **Older names still in the portal:** `name_fixes.csv` lists portal names to
+  print under a current name, optionally for one state only. It starts with
+  *Pituophis melanoleucus* in California → *Pituophis catenifer* (67
+  California gopher snakes in the 16 Oct 2026 export still carry the older
+  name). Each change is an info line in the review file ("portal name …
+  printed as …"). Add a row for any other case; `--rename 'Old=New'` adds one
+  for a single run. The upload script uses the same file, so those specimens
+  aren't left out as "different taxon". Better still, correct the records in
+  the portal.
+
+  ```
+  portal_name,label_name,stateProvince,note
+  Pituophis melanoleucus,Pituophis catenifer,California,"..."
+  ```
 - **Locality, several counties in the jar:** each row shows its county
   ("Cochise Co.", "Pima Co.").
 - **Collector:** first initial and surname ("Samuel S. Sweet" → "S. Sweet");
@@ -344,7 +358,7 @@ So a wrong jar never reaches the portal (all CHECK in the review file):
 | A catalog number listed in two jars | it can only be in one |
 | A number not in the portal | nothing to update |
 | A number with two portal records | the upload would update both |
-| A number that's a different taxon from the rest of its jar | probably a misread tag |
+| A number that's a different taxon from the rest of its jar (after `name_fixes.csv`) | probably a misread tag |
 | Dynamic Properties already names a different jar | needs checking by hand |
 
 Resolve the CHECK lines from the label run first. Jars in several sheets
@@ -417,6 +431,8 @@ to some jars.
 | `--reconciliation XLSX` | — | Print only jars that passed `herp_reconcile.py`. |
 | `--status S ...` | All matched | Jar statuses to print with `--reconciliation`. |
 | `--exact-names` | — | Also skip jars whose name differs from the portal. |
+| `--name-fixes CSV` | `name_fixes.csv` | Portal names printed under another name (portal_name, label_name, stateProvince, note). |
+| `--rename 'Old=New'` | — | Add a name fix for this run (any state). |
 | `--paper-width CM` | 10 | Roll width, which is the page height. |
 | `--length CM` | fit content | Fixed label length. |
 | `--max-length CM` | 30 | Longest label for a jar with no size (flagged if longer). |
@@ -468,6 +484,7 @@ hints kingdom Animalia and phylum Chordata.
 make_jar_labels.py        the label generator
 make_symbiota_upload.py   jar numbers -> Symbiota Dynamic Properties (CSV for skeletal upload)
 jar_sizes.csv             measured jars and the label size for each
+name_fixes.csv            older portal names printed under the current name
 family_cache.json         cached genus → family lookups from GBIF
 requirements.txt
 examples/
