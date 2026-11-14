@@ -32,6 +32,9 @@ size for that jar in `jar_sizes.csv`.
 - **Fills in families** from the [GBIF backbone](https://www.gbif.org/developer/species),
   cached in `family_cache.json`, and **localities and collectors** from the
   Symbiota portal export (`--portal`).
+- **Puts jar numbers into the portal:** `make_symbiota_upload.py` builds a CSV
+  that adds each specimen's jar ("jarNumber: H1334") to its Dynamic Properties
+  by Symbiota's skeletal upload, keeping anything already there. See [Jar numbers into the Symbiota portal](#jar-numbers-into-the-symbiota-portal).
 - **Writes a review file** (`*_review.csv`) listing every label that needed a
   judgement call, each line marked **CHECK** (fix or confirm before printing)
   or **info** (routine). See [Review file](#review-file).
@@ -298,6 +301,92 @@ python make_jar_labels.py Herp_Label_Data.xlsx \
 - `--exact-names` also drops jars whose name differs from the portal's
   (synonyms, older names, spelling).
 
+## Jar numbers into the Symbiota portal
+
+`make_symbiota_upload.py` records each specimen's jar in the portal's
+**Dynamic Properties** field (Darwin Core `dynamicProperties`) as
+`jarNumber: H1334`. Dynamic Properties is a Darwin Core field, so the jar
+number is in every portal export, for anyone pulling specimens on site.
+
+It reads the same spreadsheets you print labels from, plus a **current**
+download of the portal (the Darwin Core export zip). Download it just before
+running, so the script sees what is in the portal now:
+
+```bash
+python make_symbiota_upload.py batches/Trial_1_52_24.csv batches/Trial_2_52_24.csv \
+    --portal SymbOutput_2026-11-20_DwC-A.zip -o batches/jar_upload.csv
+```
+
+### Keeping what's already in the portal
+
+The script looks at each specimen's current Dynamic Properties in the download:
+
+| Current value | What happens | File |
+|---|---|---|
+| empty | gets `jarNumber: H1334` | `jar_upload.csv`, for the Skeletal File Upload |
+| already this jar | nothing to do | listed (info) in `jar_upload_review.csv` |
+| a **different** jar | left out | CHECK in `jar_upload_review.csv` |
+| other text, no jar | merged: existing text + `; jarNumber: H1334` (JSON stays JSON: `{"sex": "F", "jarNumber": "H1334"}`) | `jar_upload_merge.csv` |
+
+So the main upload only ever fills empty fields, and nothing already in the
+portal is replaced. The merge file holds the specimens that need their
+existing text kept alongside the jar number (none in the 16 Oct 2026 export:
+Dynamic Properties was empty on every record).
+
+### What's left out
+
+So a wrong jar never reaches the portal (all CHECK in the review file):
+
+| Left out | Why |
+|---|---|
+| Jars with a missing or uncertain number ("H1339?", "H10??", "illegible") | the jar number itself isn't known |
+| Jars with `Catalog_Verified` empty | not checked yet (`--include-unverified` uses `Catalog #s` instead, flagged) |
+| A catalog number listed in two jars | it can only be in one |
+| A number not in the portal | nothing to update |
+| A number with two portal records | the upload would update both |
+| A number that's a different taxon from the rest of its jar | probably a misread tag |
+| Dynamic Properties already names a different jar | needs checking by hand |
+
+Resolve the CHECK lines from the label run first. Jars in several sheets
+(reprints) are written once.
+
+### Uploading to the portal
+
+Use Symbiota's **Skeletal File Upload**, matched on catalog number. It only
+fills fields that are empty in the portal and never overwrites existing data.
+(See [Symbiota Docs: Importing and
+Uploading](https://docs.symbiota.org/Collection_Manager_Guide/Importing_Uploading/).)
+Never use the Full Text File Upload for this: it overwrites every field of the
+matched records, including fields not in the file.
+
+1. **Back up first:** in the collection's Administration Control Panel,
+   download a backup file.
+2. **Test with a few rows:** copy the header and 2–3 rows of `jar_upload.csv`
+   into a small test file and upload that first.
+3. **Import/Update Specimen Records → Skeletal File Upload**, and choose the CSV.
+4. **Map the fields:** `catalogNumber` → catalogNumber, `dynamicProperties` →
+   dynamicProperties. Choose **match on Catalog Number**.
+5. **Start Upload**, then read the **Pending Data Transfer Report**: records to
+   be updated should equal the rows in the file, with **0 new records**. New
+   records mean some catalog numbers didn't match; stop and check.
+6. **Transfer Records to Central Specimen Table.** Symbiota warns this step
+   can't be undone.
+7. Open two or three specimens in the portal, and check that a fresh export
+   shows `jarNumber: H…` in dynamicProperties.
+
+**Merge file:** a skeletal upload can't change a field that already has text.
+For each specimen in `jar_upload_merge.csv`, either paste the merged value
+into Dynamic Properties in the record editor, or clear the field (e.g. with
+the portal's batch-editing tool) and upload the merge file's `catalogNumber`
+and `dynamicProperties` columns as a skeletal upload. Re-download the portal
+data and re-run the script first if any time has passed.
+
+**Changing a jar later:** the same applies: edit the record, or clear the field
+and upload again.
+
+`--format` changes the text (default `jarNumber: {jar}`); `--jar` limits the run
+to some jars.
+
 ## Options
 
 | Option | Default | What it does |
@@ -377,6 +466,7 @@ hints kingdom Animalia and phylum Chordata.
 
 ```
 make_jar_labels.py        the label generator
+make_symbiota_upload.py   jar numbers -> Symbiota Dynamic Properties (CSV for skeletal upload)
 jar_sizes.csv             measured jars and the label size for each
 family_cache.json         cached genus → family lookups from GBIF
 requirements.txt

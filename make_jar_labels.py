@@ -658,6 +658,8 @@ def read_jars(path: Path, sheets, jar_filter, max_expand, expand, families: Fami
                 jar.problems.append("no usable state/country")
             if not jar_id:
                 jar.problems.append("no Jar #")
+            elif not re.fullmatch(r"[A-Za-z]*\d+[A-Za-z]?(-\d+)?", jar_id):
+                jar.problems.append(f"Jar # '{jar_id}' looks uncertain or mistyped; printed as-is")
             # the sheet has one locality per jar: show it once, in the header line
             loc = re.sub(r"\s+(co\.?|county)$", "", jar.locality, flags=re.I).strip()
             if loc and loc.lower() not in jar.header.lower():
@@ -705,7 +707,7 @@ class Specimen:
     family: str = ""
 
 
-_DIST = re.compile(r"^\s*(?:~|approx\.?|ca\.?|about|appr\.?)?\s*[\d.,/ \-–]*\d\s*(?:\+\s*)?"
+_DIST = re.compile(r"^\s*(?:~|approx\.?|ca\.?|about|appr\.?)?\s*(?:[\d.,/ \-–]*\d|\?+)\s*(?:\+\s*)?"
                    r"(?:air\s+|road\s+|rd\.?\s+)?(?:mi|mile|miles|km|m|ft|yds?|yards?)\b\.?/?\s*",
                    re.I)
 _MID_DIST = re.compile(r"\s(?:~|approx\.?|ca\.?)?\s*[\d.,/ \-–]*\d\s*(?:air\s+)?"
@@ -1927,7 +1929,7 @@ CHECK_PATTERNS = [
     r"^not verified yet",                                # Catalog_Verified empty
     r"^in jar but not in Catalog #s",                    # found in the jar, not on the old list
     r"^reversed range|^range '.*' spans|^unparsed catalog entry",
-    r"^no scientific name|^no catalog numbers|^no usable state|^no Jar #",
+    r"^no scientific name|^no catalog numbers|^no usable state|^no Jar #|^Jar # '",
     r"^no jar size|not in jar_sizes\.csv|smaller than every jar|not recognised",
     r"more than the .* cm roll",
     r"^doesn't fit the label|^label is .* cm long",
